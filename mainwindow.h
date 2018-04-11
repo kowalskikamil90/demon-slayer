@@ -1,14 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QPixmap>
-#include <QIcon>
+#include "menuwidget.h"
+#include "gamewidget.h"
+#include <QStackedWidget>
+#include <QDialog>
 
-class MainWindow : public QWidget
+class MainWindow : public QDialog
 {
     Q_OBJECT
 
@@ -18,17 +16,19 @@ public:
 
 private:
 
-    QVBoxLayout *menuLayout;
-    QPushButton *startBtn;
-    QPushButton *exitBtn;
-    QLabel *title;
-    QPixmap *titlePm;
-    QIcon *startIc;
-    QIcon *exitIc;
+    /* Stacked widget for switching modes */
+    QStackedWidget *stackWidged;
+
+    /* Widget containing all menu screen items */
+    MenuWidget *menuWidget;
+
+    /* Widget containing all menu screen items */
+    GameWidget *gameWidget;
 
 private slots:
 
     void switchToGameMode();
+    void switchToMenuMode();
 };
 
 #endif // MAINWINDOW_H
