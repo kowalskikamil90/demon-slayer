@@ -25,6 +25,10 @@ private:
     QPixmap *titlePm;
     QIcon *startIc;
     QIcon *exitIc;
+
+private slots:
+
+    void switchToGameMode();
 };
 
 #endif // MAINWINDOW_H
