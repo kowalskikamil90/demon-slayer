@@ -6,13 +6,17 @@ MenuWidget::MenuWidget(QWidget *parent) :
     menuLayout(new QVBoxLayout),
     startBtn(new QPushButton),
     exitBtn(new QPushButton),
-    title(new QLabel),
-    titlePm(new QPixmap("/home/binarek/github/demon-slayer/images/title.png")),
-    startIc(new QIcon("/home/binarek/github/demon-slayer/images/start.png")),
-    exitIc(new QIcon("/home/binarek/github/demon-slayer/images/exit.png"))
+    title(new QLabel)
 {
-    /* Setup of the layout in MENU mode */
+    /* Load pictures.
+     * This is Qt-specific syntax for paths.
+     * Images are stored in application executable
+     * and are listed in images.qrc file */
+    titlePm = new QPixmap(":/images/title.png");
+    startIc = new QIcon(":/images/start.png");
+    exitIc = new QIcon(":/images/exit.png");
 
+    /* Setup of the layout in MENU mode */
     title->setBaseSize(300, 100);
     title->setPixmap(*titlePm);
     title->setStyleSheet("background-color: green");

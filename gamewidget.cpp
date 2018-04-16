@@ -9,7 +9,6 @@ GameWidget::GameWidget(QWidget *parent) :
     exitToMenu(new QPushButton),
     tips(new QLabel)
 {
-
     // Setup tips layout
     tips->setText("Use arrow keys to walk");
     exitToMenu->setText("Exit to menu");

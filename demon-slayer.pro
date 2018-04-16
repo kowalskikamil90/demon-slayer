@@ -33,3 +33,6 @@ HEADERS += \
         mainwindow.h \
     menuwidget.h \
     gamewidget.h
+
+RESOURCES += \
+    images.qrc
