@@ -7,25 +7,32 @@ GameWidget::GameWidget(QWidget *parent) :
     gameDisplayLayout(new QGridLayout),
     gameScripture(new QLabel),
     exitToMenu(new QPushButton),
-    tips(new QLabel)
-{
+    tips(new QLabel),
+    arrows(new QLabel)
+{  
     // Setup tips layout
     tips->setText("Use arrow keys to walk");
+
+    arrowsPm = new QPixmap(":/images/arrows.png");
+    arrows->setPixmap(*arrowsPm);
+    arrows->setFixedSize(100, 40);
+
     exitToMenu->setText("Exit to menu");
     gameTipsLayout->addWidget(tips);
+    gameTipsLayout->addWidget(arrows);
     gameTipsLayout->addStretch(1);
     gameTipsLayout->addWidget(exitToMenu);
 
     // Setup grid layout - the map
-    int rows = 42;
-    int cols = 45;
+    int rows = 10;
+    int cols = 11;
 
     for (int i=0; i<rows; i++)
     {
         for (int j=0; j<cols; j++)
         {
             QPushButton *pix = new QPushButton();
-            pix->setFixedSize(15, 15);
+            pix->setFixedSize(60, 60);
             gameDisplayLayout->addWidget(pix, i, j);
         }
     }

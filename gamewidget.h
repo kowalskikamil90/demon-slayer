@@ -7,6 +7,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QPixmap>
 
 class GameWidget : public QWidget
 {
@@ -26,6 +27,8 @@ private:
     QLabel *gameScripture;
     QPushButton *exitToMenu;
     QLabel *tips;
+    QLabel *arrows;
+    QPixmap *arrowsPm;
 };
 
 #endif // GAMEWIDGET_H

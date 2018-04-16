@@ -3,5 +3,6 @@
         <file>images/exit.png</file>
         <file>images/start.png</file>
         <file>images/title.png</file>
+        <file>images/arrows.png</file>
     </qresource>
 </RCC>
