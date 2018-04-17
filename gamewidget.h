@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <QPixmap>
 
+extern int score;
+
 class GameWidget : public QWidget
 {
     Q_OBJECT
@@ -28,6 +30,7 @@ private:
     QPushButton *exitToMenu;
     QLabel *tips;
     QLabel *arrows;
+    QLabel *scoreLbl;
     QPixmap *arrowsPm;
 };
 

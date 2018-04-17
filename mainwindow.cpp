@@ -29,6 +29,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::switchToGameMode()
 {
+    // Reset the score
+    score = 0;
+
     // Set the background color as light grey
     this->setStyleSheet("background:rgb(150, 150, 150)");
 
@@ -37,6 +40,9 @@ void MainWindow::switchToGameMode()
 
 void MainWindow::switchToMenuMode()
 {
+    // Reset the score
+    score = 0;
+
     // Set the background color as dark grey
     this->setStyleSheet("background:rgb(88, 88, 88)");
 

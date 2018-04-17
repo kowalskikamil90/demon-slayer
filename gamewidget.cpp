@@ -1,5 +1,8 @@
 #include "gamewidget.h"
 #include <QString>
+#include <QPalette>
+
+int score;
 
 GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
@@ -9,18 +12,39 @@ GameWidget::GameWidget(QWidget *parent) :
     gameScripture(new QLabel),
     exitToMenu(new QPushButton),
     tips(new QLabel),
-    arrows(new QLabel)
+    arrows(new QLabel),
+    scoreLbl(new QLabel)
 {
+    // Initial score
+    score = 0;
+
     // Setup tips layout
     tips->setText("Use arrow keys to walk");
 
+    // Arrows picture
     arrowsPm = new QPixmap(":/images/arrows.png");
     arrows->setPixmap(*arrowsPm);
     arrows->setFixedSize(100, 40);
 
+    // SCORE label
+    QPalette palette;
+    palette.setColor(QPalette::WindowText, Qt::green);
+    QFont font = scoreLbl->font();
+    font.setBold(true);
+    font.setPointSize(20);
+    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+    scoreLbl->setPalette(palette);
+    scoreLbl->setFont(font);
+
+    // Exit button
     exitToMenu->setText("Exit to menu");
+    exitToMenu->setFocusPolicy(Qt::NoFocus);
+
+    // Entire tips layout
     gameTipsLayout->addWidget(tips);
     gameTipsLayout->addWidget(arrows);
+    gameTipsLayout->addStretch(1);
+    gameTipsLayout->addWidget(scoreLbl);
     gameTipsLayout->addStretch(1);
     gameTipsLayout->addWidget(exitToMenu);
 
@@ -44,17 +68,26 @@ GameWidget::GameWidget(QWidget *parent) :
     };
     QIcon tree(":/images/tree1.png");
     QIcon path(":/images/dryground.png");
+    QIcon paul(":/images/paul.png");
 
     for (int i=0; i<rows; i++)
     {
         for (int j=0; j<cols; j++)
         {
             QPushButton *pix = new QPushButton();
+            pix->setFocusPolicy(Qt::NoFocus);
             pix->setFixedSize(60, 60);
-            if (map[i][j] == "T")
+            // Setup Paul
+            if (i == 5 && j == 5)
+            {
+                pix->setIcon(paul);
+            }
+            // Trees
+            else if (map[i][j] == "T")
             {
                 pix->setIcon(tree);
             }
+            // Paths
             else if (map[i][j] == "P")
             {
                 pix->setIcon(path);
@@ -82,5 +115,4 @@ GameWidget::GameWidget(QWidget *parent) :
 
     // Exit to menu when the "EXIT to menu" button is clicked
     connect(exitToMenu, SIGNAL(clicked()), this->parent(), SLOT(switchToMenuMode()));
-
 }
