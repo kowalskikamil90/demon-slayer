@@ -17,6 +17,9 @@ class MenuWidget : public QWidget
 public:
     explicit MenuWidget(QWidget *parent = nullptr);
 
+protected:
+    void paintEvent(QPaintEvent*);
+
 signals:
 
 public slots:

@@ -1,5 +1,6 @@
 #include "menuwidget.h"
 #include <QApplication>
+#include <QPainter>
 
 MenuWidget::MenuWidget(QWidget *parent) :
     QWidget(parent),
@@ -52,4 +53,16 @@ MenuWidget::MenuWidget(QWidget *parent) :
 
     // Exit app when the "EXIT" button is clicked
     connect(exitBtn, SIGNAL(clicked()), QApplication::instance(), SLOT(quit()));
+}
+
+void MenuWidget::paintEvent(QPaintEvent* event)
+{
+    (void*)event;
+
+    //Paint the cross symbol
+    QPainter painter(this);
+    painter.fillRect(340, 140, 20, 170, QColor(150, 30, 30));
+    painter.fillRect(300, 180, 100, 20, QColor(150, 30, 30));
+    painter.fillRect(345, 145, 10, 160, QColor(0, 0, 0));
+    painter.fillRect(305, 185, 90, 10, QColor(0, 0, 0));
 }
