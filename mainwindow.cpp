@@ -36,6 +36,11 @@ void MainWindow::switchToGameMode()
     this->setStyleSheet("background:rgb(150, 150, 150)");
 
     stackWidged->setCurrentWidget(gameWidget);
+
+    gameWidget->drawInitialMap();
+
+    // Start game
+    GameWidget::start();
 }
 
 void MainWindow::switchToMenuMode()
@@ -47,4 +52,7 @@ void MainWindow::switchToMenuMode()
     this->setStyleSheet("background:rgb(88, 88, 88)");
 
     stackWidged->setCurrentWidget(menuWidget);
+
+    // Stop game
+    GameWidget::stop();
 }
