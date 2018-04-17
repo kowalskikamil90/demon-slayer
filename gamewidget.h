@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
-#include <QVector>
+#include <QSet>
 
 extern int score;
 
@@ -23,11 +23,19 @@ public:
 
 signals:
 
+protected:
+    void keyPressEvent(QKeyEvent* event);
+
 private slots:
     void spawnDemon();
 
 private:
 
+    struct Position {
+        int x, y;
+    };
+
+    QString map[10][11];
     QVBoxLayout *gameMainLayout;
     QHBoxLayout *gameTipsLayout;
     QGridLayout *gameDisplayLayout;
@@ -39,7 +47,9 @@ private:
     QLabel *scoreLbl;
     QPixmap *arrowsPm;
     int numOfDemons;
-    QVector<int> availSpawns;
+    QSet<int> availSpawns;
+    QSet<int> positionedDemons;
+    GameWidget::Position paulsPos;
 
     static bool gameStarted;
 

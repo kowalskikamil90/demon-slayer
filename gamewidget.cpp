@@ -4,6 +4,8 @@
 #include <QTimer>
 #include <QTime>
 #include <QRandomGenerator>
+#include <QKeyEvent>
+#include <QDebug>
 
 // Global variable used for storing the game SCORE
 int score;
@@ -16,6 +18,20 @@ bool GameWidget::gameStarted(false);
 
 GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
+    // T = TREE
+    // P = PATH
+    map({
+        {"T", "P", "P", "P", "T", "T", "T", "P", "P", "P", "T"},
+        {"T", "P", "T", "P", "P", "P", "P", "P", "T", "P", "T"},
+        {"T", "P", "T", "T", "P", "T", "T", "P", "P", "P", "P"},
+        {"P", "P", "P", "P", "P", "P", "T", "T", "T", "T", "P"},
+        {"P", "T", "T", "P", "T", "P", "P", "P", "T", "P", "P"},
+        {"P", "P", "T", "T", "T", "P", "T", "P", "T", "P", "T"},
+        {"P", "P", "P", "P", "T", "P", "T", "P", "T", "P", "P"},
+        {"T", "P", "T", "P", "P", "P", "T", "P", "P", "P", "P"},
+        {"T", "P", "T", "P", "T", "P", "P", "P", "P", "T", "T"},
+        {"T", "P", "P", "P", "T", "T", "T", "P", "P", "P", "T"},
+    }),
     gameMainLayout(new QVBoxLayout),
     gameTipsLayout(new QHBoxLayout),
     gameDisplayLayout(new QGridLayout),
@@ -27,7 +43,7 @@ GameWidget::GameWidget(QWidget *parent) :
 {
     // Initialize random number generator
     QTime time = QTime::currentTime();
-    qsrand(static_cast<unsigned int> (time.msec()));
+    qsrand(static_cast<unsigned int>(time.msec()));
 
     // Initial score
     score = 0;
@@ -142,16 +158,18 @@ int GameWidget::getSpawn()
 
     if (availSpawns.size() == 1)
     {
-        spawn = availSpawns.at(0);
+        spawn = availSpawns.toList().at(0);
         availSpawns.remove(0);
+        positionedDemons.insert(0);
     }
     else
     {
         int randomNum =  (qrand() % 10) + availSpawns.size();
         int numCycles = randomNum / availSpawns.size();
         randomNum = randomNum - numCycles*availSpawns.size();
-        spawn = availSpawns.at(randomNum);
+        spawn = availSpawns.toList().at(randomNum);
         availSpawns.remove(randomNum);
+        positionedDemons.insert(randomNum);
     }
 
     return spawn;
@@ -163,20 +181,6 @@ void GameWidget::drawInitialMap()
     int rows = 10;
     int cols = 11;
 
-    // T = TREE
-    // P = PATH
-    QString map[10][11] = {
-        {"T", "P", "P", "P", "T", "T", "T", "P", "P", "P", "T"},
-        {"T", "P", "T", "P", "P", "P", "P", "P", "T", "P", "T"},
-        {"T", "P", "T", "T", "P", "T", "T", "P", "P", "P", "P"},
-        {"P", "P", "P", "P", "P", "P", "T", "T", "T", "T", "P"},
-        {"P", "T", "T", "P", "T", "P", "P", "P", "T", "P", "P"},
-        {"P", "P", "T", "T", "T", "P", "T", "P", "T", "P", "T"},
-        {"P", "P", "P", "P", "T", "P", "T", "P", "T", "P", "P"},
-        {"T", "P", "T", "P", "P", "P", "T", "P", "P", "P", "P"},
-        {"T", "P", "T", "P", "T", "P", "P", "P", "P", "T", "T"},
-        {"T", "P", "P", "P", "T", "T", "T", "P", "P", "P", "T"},
-    };
     QIcon tree(":/images/tree1.png");
     QIcon path(":/images/dryground.png");
     QIcon paul(":/images/paul.png");
@@ -192,6 +196,8 @@ void GameWidget::drawInitialMap()
             if (i == 5 && j == 5)
             {
                 pix->setIcon(paul);
+                paulsPos.x = i;
+                paulsPos.y = j;
             }
             // Trees
             else if (map[i][j] == "T")
@@ -215,11 +221,14 @@ void GameWidget::drawInitialMap()
 
     // Setup available spawn positions
     availSpawns.clear();
-    availSpawns.push_back(0);
-    availSpawns.push_back(1);
-    availSpawns.push_back(2);
-    availSpawns.push_back(3);
-    availSpawns.push_back(4);
+    availSpawns.insert(0);
+    availSpawns.insert(1);
+    availSpawns.insert(2);
+    availSpawns.insert(3);
+    availSpawns.insert(4);
+
+    // No demons at the beginning
+    positionedDemons.clear();
 }
 
 void GameWidget::start()
@@ -230,4 +239,100 @@ void GameWidget::start()
 void GameWidget::stop()
 {
     gameStarted = false;
+}
+
+void GameWidget::keyPressEvent(QKeyEvent* event)
+{
+    QIcon path(":/images/dryground.png");
+    QIcon paul(":/images/paul.png");
+    int x = paulsPos.x;
+    int y = paulsPos.y;
+
+    qDebug() << x << "," << y;
+
+    switch (event->key())
+    {
+    case Qt::Key_Left:
+        if (y>0)
+        {
+            qDebug() << "LEFT: " << *map[x, y-1];
+            if (map[x, y-1] == QString("P"))
+            {
+
+                qDebug() << "LEFT: " << *map[x, y-1];
+
+                // Set ground icon where Paul was
+                pixels[x][y]->setIcon(path);
+                pixels[x][y]->setIconSize(QSize(60, 60));
+
+                // Set Paul icon to the left
+                pixels[x][y-1]->setIcon(paul);
+                pixels[x][y-1]->setIconSize(QSize(60, 60));
+
+                // Set new Paul's position
+                paulsPos.y = y-1;
+            }
+        }
+        break;
+
+    case Qt::Key_Up:
+        if (x>0)
+        {
+            if (map[x-1, y] == QString("P"))
+            {
+                // Set ground icon where Paul was
+                pixels[x][y]->setIcon(path);
+                pixels[x][y]->setIconSize(QSize(60, 60));
+
+                // Set Paul icon to the left
+                pixels[x-1][y]->setIcon(paul);
+                pixels[x-1][y]->setIconSize(QSize(60, 60));
+
+                // Set new Paul's position
+                paulsPos.x = x-1;
+            }
+        }
+
+        break;
+
+    case Qt::Key_Down:
+        if (x<9)
+        {
+            if (map[x+1, y] == QString("P"))
+            {
+                // Set ground icon where Paul was
+                pixels[x][y]->setIcon(path);
+                pixels[x][y]->setIconSize(QSize(60, 60));
+
+                // Set Paul icon to the left
+                pixels[x+1][y]->setIcon(paul);
+                pixels[x+1][y]->setIconSize(QSize(60, 60));
+
+                // Set nes Paul's position
+                paulsPos.x = x+1;
+            }
+        }
+
+        break;
+
+    case Qt::Key_Right:
+        if (y<10)
+        {
+            if (map[x, y+1] == QString("P"))
+            {
+                // Set ground icon where Paul was
+                pixels[x][y]->setIcon(path);
+                pixels[x][y]->setIconSize(QSize(60, 60));
+
+                // Set Paul icon to the left
+                pixels[x][y+1]->setIcon(paul);
+                pixels[x][y+1]->setIconSize(QSize(60, 60));
+
+                // Set new Paul's position
+                paulsPos.y = y+1;
+            }
+        }
+
+        break;
+    }
 }
