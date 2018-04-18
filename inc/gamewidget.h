@@ -28,8 +28,6 @@ public:
     static void start();
     static void stop();
 
-signals:
-
 protected:
     void keyPressEvent(QKeyEvent* event);
 
@@ -42,30 +40,30 @@ private:
         int x, y;
     };
 
-    QVBoxLayout *gameMainLayout;
-    QHBoxLayout *gameTipsLayout;
-    QGridLayout *gameDisplayLayout;
+    QVBoxLayout *_gameMainLayout;
+    QHBoxLayout *_gameTipsLayout;
+    QGridLayout *_gameDisplayLayout;
 
     // These two fileds hold the map and units together
-    QPushButton *pixelsBtn[ROWS][COLS];
-    QChar pixelsDesc[ROWS][COLS];
+    QPushButton *_pixelsBtn[ROWS][COLS];
+    QChar _pixelsDesc[ROWS][COLS];
 
-    QLabel *gameScripture;
-    QPushButton *exitToMenu;
-    QLabel *tips;
-    QLabel *arrows;
-    QLabel *scoreLbl;
-    QPixmap *arrowsPm;
+    QLabel *_gameScripture;
+    QPushButton *_exitToMenu;
+    QLabel *_tips;
+    QLabel *_arrows;
+    QLabel *_scoreLbl;
+    QPixmap *_arrowsPm;
 
     //Vector for scriptures loaded from file
-    QVector<QString> scriptureVec;
+    QVector<QString> _scriptureVec;
 
-    int numOfDemons;
-    QSet<int> availSpawns;
-    GameWidget::Position paulsPos;
+    int _numOfDemons;
+    QSet<int> _availSpawns;
+    GameWidget::Position _paulsPos;
 
-    static bool gameStarted;
-    static QTimer *timer;
+    static bool _gameStarted;
+    static QTimer *_timer;
 
     int getSpawn();
     int pickScriptureIndex();

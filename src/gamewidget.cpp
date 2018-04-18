@@ -35,19 +35,19 @@ static QChar theInitialMap[ROWS][COLS]= {
 #define SPAWN_TIMEOUT 3000 //unit is ms
 
 // Static member inititialization
-bool GameWidget::gameStarted(false);
-QTimer* GameWidget::timer(new QTimer);
+bool GameWidget::_gameStarted(false);
+QTimer* GameWidget::_timer(new QTimer);
 
 GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
-    gameMainLayout(new QVBoxLayout),
-    gameTipsLayout(new QHBoxLayout),
-    gameDisplayLayout(new QGridLayout),
-    gameScripture(new QLabel),
-    exitToMenu(new QPushButton),
-    tips(new QLabel),
-    arrows(new QLabel),
-    scoreLbl(new QLabel)
+    _gameMainLayout(new QVBoxLayout),
+    _gameTipsLayout(new QHBoxLayout),
+    _gameDisplayLayout(new QGridLayout),
+    _gameScripture(new QLabel),
+    _exitToMenu(new QPushButton),
+    _tips(new QLabel),
+    _arrows(new QLabel),
+    _scoreLbl(new QLabel)
 {
     /* Initialize random number generator.
      * This way we get diffrent numbers each time when the app is run. */
@@ -58,60 +58,60 @@ GameWidget::GameWidget(QWidget *parent) :
     score = 0;
 
     // Setup tips layout
-    tips->setText("Use arrow keys to walk");
+    _tips->setText("Use arrow keys to walk");
 
     // Arrows picture
-    arrowsPm = new QPixmap(":/images/arrows.png");
-    arrows->setPixmap(*arrowsPm);
-    arrows->setFixedSize(100, 40);
+    _arrowsPm = new QPixmap(":/images/arrows.png");
+    _arrows->setPixmap(*_arrowsPm);
+    _arrows->setFixedSize(100, 40);
 
     // SCORE label
     QPalette palette;
     palette.setColor(QPalette::WindowText, Qt::green);
-    QFont font = scoreLbl->font();
+    QFont font = _scoreLbl->font();
     font.setBold(true);
     font.setPointSize(20);
-    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
-    scoreLbl->setPalette(palette);
-    scoreLbl->setFont(font);
+    _scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+    _scoreLbl->setPalette(palette);
+    _scoreLbl->setFont(font);
 
     // Exit button
-    exitToMenu->setText("Exit to menu");
-    exitToMenu->setFocusPolicy(Qt::NoFocus);
+    _exitToMenu->setText("Exit to menu");
+    _exitToMenu->setFocusPolicy(Qt::NoFocus);
 
     // Entire tips layout
-    gameTipsLayout->addWidget(tips);
-    gameTipsLayout->addWidget(arrows);
-    gameTipsLayout->addStretch(1);
-    gameTipsLayout->addWidget(scoreLbl);
-    gameTipsLayout->addStretch(1);
-    gameTipsLayout->addWidget(exitToMenu);
+    _gameTipsLayout->addWidget(_tips);
+    _gameTipsLayout->addWidget(_arrows);
+    _gameTipsLayout->addStretch(1);
+    _gameTipsLayout->addWidget(_scoreLbl);
+    _gameTipsLayout->addStretch(1);
+    _gameTipsLayout->addWidget(_exitToMenu);
 
     // Initialize map grid pixels
     for (int i=0; i<ROWS; i++)
     {
         for (int j=0; j<COLS; j++)
         {
-            pixelsBtn[i][j] = new QPushButton();
-            pixelsDesc[i][j] = theInitialMap[i][j];
+            _pixelsBtn[i][j] = new QPushButton();
+            _pixelsDesc[i][j] = theInitialMap[i][j];
         }
     }
     drawInitialMap();
 
     // Setup scripture label
-    gameScripture->setText("I am the way, the truth and the life.");
-    gameScripture->setAlignment(Qt::AlignHCenter);
-    gameScripture->setFixedSize(QSize(690, 150));
+    _gameScripture->setText("I am the way, the truth and the life.");
+    _gameScripture->setAlignment(Qt::AlignHCenter);
+    _gameScripture->setFixedSize(QSize(690, 150));
 
     //Setup main vertical layout
-    gameMainLayout->addLayout(gameTipsLayout);
-    gameMainLayout->addLayout(gameDisplayLayout);
-    gameMainLayout->addWidget(gameScripture);
+    _gameMainLayout->addLayout(_gameTipsLayout);
+    _gameMainLayout->addLayout(_gameDisplayLayout);
+    _gameMainLayout->addWidget(_gameScripture);
 
-    setLayout(gameMainLayout);
+    setLayout(_gameMainLayout);
 
     // Initially there is no demons on the map
-    numOfDemons = 0;
+    _numOfDemons = 0;
 
     // Read in scriptures from the file
     QFile scriptures(":/scriptures/scriptures1.txt");
@@ -121,7 +121,7 @@ GameWidget::GameWidget(QWidget *parent) :
        while (!in.atEnd())
        {
           QString line = in.readLine();
-          scriptureVec.push_back(line);
+          _scriptureVec.push_back(line);
        }
        scriptures.close();
     }
@@ -129,16 +129,16 @@ GameWidget::GameWidget(QWidget *parent) :
     /* Logics */
 
     // Setup timer callback for demons spawning, 5 seconds timeout interval
-    connect(timer, SIGNAL(timeout()), this, SLOT(spawnDemon()));
+    connect(_timer, SIGNAL(timeout()), this, SLOT(spawnDemon()));
 
     // Exit to menu when the "EXIT to menu" button is clicked
-    connect(exitToMenu, SIGNAL(clicked()), this->parent(), SLOT(switchToMenuMode()));
+    connect(_exitToMenu, SIGNAL(clicked()), this->parent(), SLOT(switchToMenuMode()));
 }
 
 void GameWidget::spawnDemon()
 {
 
-    if (numOfDemons < MAX_DEMONS && gameStarted)
+    if (_numOfDemons < MAX_DEMONS && _gameStarted)
     {
         QIcon demon(":/images/demon.png");
         QPushButton *pix;
@@ -147,39 +147,39 @@ void GameWidget::spawnDemon()
         switch (getSpawn()){
 
         case 0:
-            pix = pixelsBtn[1][1];
-            desc = &pixelsDesc[1][1];
+            pix = _pixelsBtn[1][1];
+            desc = &_pixelsDesc[1][1];
 
             break;
 
         case 1:
-            pix = pixelsBtn[7][1];
-            desc = &pixelsDesc[7][1];
+            pix = _pixelsBtn[7][1];
+            desc = &_pixelsDesc[7][1];
 
             break;
 
         case 2:
-            pix = pixelsBtn[1][7];
-            desc = &pixelsDesc[1][7];
+            pix = _pixelsBtn[1][7];
+            desc = &_pixelsDesc[1][7];
 
             break;
 
         case 3:
-            pix = pixelsBtn[7][5];
-            desc = &pixelsDesc[7][5];
+            pix = _pixelsBtn[7][5];
+            desc = &_pixelsDesc[7][5];
 
             break;
 
         case 4:
-            pix = pixelsBtn[8][8];
-            desc = &pixelsDesc[8][8];
+            pix = _pixelsBtn[8][8];
+            desc = &_pixelsDesc[8][8];
 
             break;
         }
 
         pix->setIcon(demon);
         pix->setIconSize(QSize(60, 60));
-        numOfDemons++;
+        _numOfDemons++;
         *desc = 'D';
     }
 
@@ -193,20 +193,20 @@ int GameWidget::getSpawn()
     int spawn;
 
     // Only one available position, nothing to shuffle
-    if (availSpawns.size() == 1)
+    if (_availSpawns.size() == 1)
     {
-        spawn = availSpawns.toList().at(0);
-        availSpawns.remove(0);
+        spawn = _availSpawns.toList().at(0);
+        _availSpawns.remove(0);
     }
 
     // Randomly choose the position for a demon
     else
     {
-        int randomNum =  (qrand() % 10) + availSpawns.size();
-        int numCycles = randomNum / availSpawns.size();
-        randomNum = randomNum - numCycles*availSpawns.size();
-        spawn = availSpawns.toList().at(randomNum);
-        availSpawns.remove(spawn);
+        int randomNum =  (qrand() % 10) + _availSpawns.size();
+        int numCycles = randomNum / _availSpawns.size();
+        randomNum = randomNum - numCycles*_availSpawns.size();
+        spawn = _availSpawns.toList().at(randomNum);
+        _availSpawns.remove(spawn);
     }
 
     return spawn;
@@ -215,7 +215,7 @@ int GameWidget::getSpawn()
 int GameWidget::pickScriptureIndex()
 {
     // Get random scripture index
-    return  qrand() % scriptureVec.size();
+    return  qrand() % _scriptureVec.size();
 }
 
 void GameWidget::drawInitialMap()
@@ -230,8 +230,8 @@ void GameWidget::drawInitialMap()
     {
         for (int j=0; j<COLS; j++)
         {
-            QPushButton *pix = pixelsBtn[i][j];
-            QChar *desc = &pixelsDesc[i][j];
+            QPushButton *pix = _pixelsBtn[i][j];
+            QChar *desc = &_pixelsDesc[i][j];
             pix->setFocusPolicy(Qt::NoFocus);
             pix->setFixedSize(60, 60);
 
@@ -239,8 +239,8 @@ void GameWidget::drawInitialMap()
             if (i == initPaulPosX && j == initPaulPosY)
             {
                 pix->setIcon(paul);
-                paulsPos.x = i;
-                paulsPos.y = j;
+                _paulsPos.x = i;
+                _paulsPos.y = j;
                 *desc = 'P'; //No need to distinguish Path From Apostle here
             }
 
@@ -259,41 +259,41 @@ void GameWidget::drawInitialMap()
             }
 
             pix->setIconSize(QSize(60, 60));
-            gameDisplayLayout->addWidget(pix, i, j);
+            _gameDisplayLayout->addWidget(pix, i, j);
         }
     }
-    gameDisplayLayout->setSpacing(1);
+    _gameDisplayLayout->setSpacing(1);
 
     // Reset number of demons
-    numOfDemons = 0;
+    _numOfDemons = 0;
 
     // Setup available spawn positions
-    availSpawns.clear();
-    availSpawns.insert(0);
-    availSpawns.insert(1);
-    availSpawns.insert(2);
-    availSpawns.insert(3);
-    availSpawns.insert(4);
+    _availSpawns.clear();
+    _availSpawns.insert(0);
+    _availSpawns.insert(1);
+    _availSpawns.insert(2);
+    _availSpawns.insert(3);
+    _availSpawns.insert(4);
 }
 
 void GameWidget::start()
 {
-    gameStarted = true;
-    timer->start(SPAWN_TIMEOUT);
+    _gameStarted = true;
+    _timer->start(SPAWN_TIMEOUT);
 }
 
 void GameWidget::stop()
 {
-    gameStarted = false;
-    timer->stop();
+    _gameStarted = false;
+    _timer->stop();
 }
 
 void GameWidget::keyPressEvent(QKeyEvent* event)
 {
     QIcon path(":/images/dryground.png");
     QIcon paul(":/images/paul.png");
-    int x = paulsPos.x;
-    int y = paulsPos.y;
+    int x = _paulsPos.x;
+    int y = _paulsPos.y;
     bool encounteredDemon = false;
 
     switch (event->key())
@@ -301,31 +301,31 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Left:
         if (y > 0)
         {
-            if (pixelsDesc[x][y-1] == 'P' || pixelsDesc[x][y-1] == 'D')
+            if (_pixelsDesc[x][y-1] == 'P' || _pixelsDesc[x][y-1] == 'D')
             {
                 // Encounter with a demon
-                if (pixelsDesc[x][y-1] == 'D')
+                if (_pixelsDesc[x][y-1] == 'D')
                 {
-                    numOfDemons--;
+                    _numOfDemons--;
                     score++;
-                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    _scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x, y-1);
                     encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
-                pixelsBtn[x][y]->setIcon(path);
-                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x][y]->setIcon(path);
+                _pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixelsBtn[x][y-1]->setIcon(paul);
-                pixelsBtn[x][y-1]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x][y-1]->setIcon(paul);
+                _pixelsBtn[x][y-1]->setIconSize(QSize(60, 60));
 
                 // Set new Paul's position
-                paulsPos.y = y-1;
+                _paulsPos.y = y-1;
 
                 // Set pixel to (P)ath
-                pixelsDesc[x][y-1] = 'P';
+                _pixelsDesc[x][y-1] = 'P';
             }
         }
         break;
@@ -333,31 +333,31 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Up:
         if (x > 0)
         {
-            if (pixelsDesc[x-1][y] == 'P' || pixelsDesc[x-1][y] == 'D')
+            if (_pixelsDesc[x-1][y] == 'P' || _pixelsDesc[x-1][y] == 'D')
             {
                 // Encounter with a demon
-                if (pixelsDesc[x-1][y] == 'D')
+                if (_pixelsDesc[x-1][y] == 'D')
                 {
-                    numOfDemons--;
+                    _numOfDemons--;
                     score++;
-                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    _scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x-1, y);
                     encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
-                pixelsBtn[x][y]->setIcon(path);
-                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x][y]->setIcon(path);
+                _pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixelsBtn[x-1][y]->setIcon(paul);
-                pixelsBtn[x-1][y]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x-1][y]->setIcon(paul);
+                _pixelsBtn[x-1][y]->setIconSize(QSize(60, 60));
 
                 // Set new Paul's position
-                paulsPos.x = x-1;
+                _paulsPos.x = x-1;
 
                 // Set pixel to (P)ath
-                pixelsDesc[x-1][y] = 'P';
+                _pixelsDesc[x-1][y] = 'P';
             }
         }
 
@@ -366,31 +366,31 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Down:
         if (x < ROWS-1)
         {
-            if (pixelsDesc[x+1][y] == 'P' || pixelsDesc[x+1][y] == 'D')
+            if (_pixelsDesc[x+1][y] == 'P' || _pixelsDesc[x+1][y] == 'D')
             {
                 // Encounter with a demon
-                if (pixelsDesc[x+1][y] == 'D')
+                if (_pixelsDesc[x+1][y] == 'D')
                 {
-                    numOfDemons--;
+                    _numOfDemons--;
                     score++;
-                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    _scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x+1, y);
                     encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
-                pixelsBtn[x][y]->setIcon(path);
-                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x][y]->setIcon(path);
+                _pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixelsBtn[x+1][y]->setIcon(paul);
-                pixelsBtn[x+1][y]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x+1][y]->setIcon(paul);
+                _pixelsBtn[x+1][y]->setIconSize(QSize(60, 60));
 
                 // Set nes Paul's position
-                paulsPos.x = x+1;
+                _paulsPos.x = x+1;
 
                 // Set pixel to (P)ath
-                pixelsDesc[x+1][y] = 'P';
+                _pixelsDesc[x+1][y] = 'P';
             }
         }
 
@@ -399,31 +399,31 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Right:
         if (y < COLS-1)
         {
-            if (pixelsDesc[x][y+1] == 'P' || pixelsDesc[x][y+1] == 'D')
+            if (_pixelsDesc[x][y+1] == 'P' || _pixelsDesc[x][y+1] == 'D')
             {
                 // Encounter with a demon
-                if (pixelsDesc[x][y+1] == 'D')
+                if (_pixelsDesc[x][y+1] == 'D')
                 {
-                    numOfDemons--;
+                    _numOfDemons--;
                     score++;
-                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    _scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x, y+1);
                     encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
-                pixelsBtn[x][y]->setIcon(path);
-                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x][y]->setIcon(path);
+                _pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixelsBtn[x][y+1]->setIcon(paul);
-                pixelsBtn[x][y+1]->setIconSize(QSize(60, 60));
+                _pixelsBtn[x][y+1]->setIcon(paul);
+                _pixelsBtn[x][y+1]->setIconSize(QSize(60, 60));
 
                 // Set new Paul's position
-                paulsPos.y = y+1;
+                _paulsPos.y = y+1;
 
                 // Set pixel to (P)ath
-                pixelsDesc[x][y+1] = 'P';
+                _pixelsDesc[x][y+1] = 'P';
             }
         }
 
@@ -431,14 +431,14 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     }
 
     // If demon was encountered, change te scripture taht is displayed
-    if (encounteredDemon) gameScripture->setText(scriptureVec[pickScriptureIndex()]);
+    if (encounteredDemon) _gameScripture->setText(_scriptureVec[pickScriptureIndex()]);
 }
 
 void GameWidget::updateSpawns(int x, int y)
 {
-    if (x == 1 && y ==1) availSpawns.insert(0);
-    else if(x == 7 && y == 1) availSpawns.insert(1);
-    else if(x == 1 && y == 7) availSpawns.insert(2);
-    else if(x == 7 && y == 5) availSpawns.insert(3);
-    else if(x == 8 && y == 8) availSpawns.insert(4);
+    if (x == 1 && y ==1) _availSpawns.insert(0);
+    else if(x == 7 && y == 1) _availSpawns.insert(1);
+    else if(x == 1 && y == 7) _availSpawns.insert(2);
+    else if(x == 7 && y == 5) _availSpawns.insert(3);
+    else if(x == 8 && y == 8) _availSpawns.insert(4);
 }

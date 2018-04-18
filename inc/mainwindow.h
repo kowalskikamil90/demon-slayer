@@ -17,13 +17,13 @@ public:
 private:
 
     /* Stacked widget for switching modes */
-    QStackedWidget *stackWidged;
+    QStackedWidget *_stackWidged;
 
     /* Widget containing all menu screen items */
-    MenuWidget *menuWidget;
+    MenuWidget *_menuWidget;
 
     /* Widget containing all menu screen items */
-    GameWidget *gameWidget;
+    GameWidget *_gameWidget;
 
 private slots:
 

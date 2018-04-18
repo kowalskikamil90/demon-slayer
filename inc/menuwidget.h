@@ -7,7 +7,6 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QIcon>
-
 #include <QHBoxLayout>
 #include <QGridLayout>
 
@@ -20,18 +19,14 @@ public:
 protected:
     void paintEvent(QPaintEvent*);
 
-signals:
-
-public slots:
-
 private:
-    QVBoxLayout *menuLayout;
-    QPushButton *startBtn;
-    QPushButton *exitBtn;
-    QLabel *title;
-    QPixmap *titlePm;
-    QIcon *startIc;
-    QIcon *exitIc;
+    QVBoxLayout *_menuLayout;
+    QPushButton *_startBtn;
+    QPushButton *_exitBtn;
+    QLabel *_title;
+    QPixmap *_titlePm;
+    QIcon *_startIc;
+    QIcon *_exitIc;
 };
 
 #endif // MENUWIDGET_H

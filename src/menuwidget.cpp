@@ -4,55 +4,55 @@
 
 MenuWidget::MenuWidget(QWidget *parent) :
     QWidget(parent),
-    menuLayout(new QVBoxLayout),
-    startBtn(new QPushButton),
-    exitBtn(new QPushButton),
-    title(new QLabel)
+    _menuLayout(new QVBoxLayout),
+    _startBtn(new QPushButton),
+    _exitBtn(new QPushButton),
+    _title(new QLabel)
 {
     /* Load pictures.
      * This is Qt-specific syntax for paths.
      * Images are stored in application executable
      * and are listed in images.qrc file */
-    titlePm = new QPixmap(":/images/title.png");
-    startIc = new QIcon(":/images/start.png");
-    exitIc = new QIcon(":/images/exit.png");
+    _titlePm = new QPixmap(":/images/title.png");
+    _startIc = new QIcon(":/images/start.png");
+    _exitIc = new QIcon(":/images/exit.png");
 
     /* Setup of the layout in MENU mode */
-    title->setBaseSize(300, 100);
-    title->setPixmap(*titlePm);
-    title->setStyleSheet("background-color: green");
+    _title->setBaseSize(300, 100);
+    _title->setPixmap(*_titlePm);
+    _title->setStyleSheet("background-color: green");
 
-    startBtn->setBaseSize(300, 100);
-    startBtn->setIcon(*startIc);
-    startBtn->setIconSize(QSize(300, 100));
-    startBtn->setStyleSheet("background-color: green");
+    _startBtn->setBaseSize(300, 100);
+    _startBtn->setIcon(*_startIc);
+    _startBtn->setIconSize(QSize(300, 100));
+    _startBtn->setStyleSheet("background-color: green");
 
-    exitBtn->setBaseSize(300, 100);
-    exitBtn->setIcon(*exitIc);
-    exitBtn->setIconSize(QSize(300, 100));
-    exitBtn->setStyleSheet("background-color: green");
+    _exitBtn->setBaseSize(300, 100);
+    _exitBtn->setIcon(*_exitIc);
+    _exitBtn->setIconSize(QSize(300, 100));
+    _exitBtn->setStyleSheet("background-color: green");
 
-    menuLayout->addWidget(title);
-    menuLayout->addStretch(1);
-    menuLayout->addWidget(startBtn);
-    menuLayout->addWidget(exitBtn);
-    menuLayout->addStretch(1);
+    _menuLayout->addWidget(_title);
+    _menuLayout->addStretch(1);
+    _menuLayout->addWidget(_startBtn);
+    _menuLayout->addWidget(_exitBtn);
+    _menuLayout->addStretch(1);
 
-    menuLayout->setAlignment(title, Qt::AlignHCenter);
-    menuLayout->setAlignment(startBtn, Qt::AlignHCenter);
-    menuLayout->setAlignment(exitBtn, Qt::AlignHCenter);
+    _menuLayout->setAlignment(_title, Qt::AlignHCenter);
+    _menuLayout->setAlignment(_startBtn, Qt::AlignHCenter);
+    _menuLayout->setAlignment(_exitBtn, Qt::AlignHCenter);
 
     this->setStyleSheet("background:rgb(88, 88, 88)");
 
-    this->setLayout(menuLayout);
+    this->setLayout(_menuLayout);
 
     /* Logics of the menu */
 
     // Start the game when "START" button is clicked
-    connect(startBtn, SIGNAL(clicked()), this->parent(), SLOT(switchToGameMode()));
+    connect(_startBtn, SIGNAL(clicked()), this->parent(), SLOT(switchToGameMode()));
 
     // Exit app when the "EXIT" button is clicked
-    connect(exitBtn, SIGNAL(clicked()), QApplication::instance(), SLOT(quit()));
+    connect(_exitBtn, SIGNAL(clicked()), QApplication::instance(), SLOT(quit()));
 }
 
 void MenuWidget::paintEvent(QPaintEvent* event)

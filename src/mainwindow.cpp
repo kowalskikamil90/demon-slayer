@@ -3,9 +3,9 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QDialog(parent),
-      stackWidged(new QStackedWidget(this)),
-      menuWidget(new MenuWidget(this)),
-      gameWidget(new GameWidget(this))
+      _stackWidged(new QStackedWidget(this)),
+      _menuWidget(new MenuWidget(this)),
+      _gameWidget(new GameWidget(this))
 {
     // Set initial position
     this->setGeometry(500, 100, 700, 700);
@@ -16,9 +16,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Set the background color as dark grey
     this->setStyleSheet("background:rgb(88, 88, 88)");
 
-    stackWidged->addWidget(menuWidget);
-    stackWidged->addWidget(gameWidget);
-    stackWidged->setCurrentWidget(menuWidget);
+    _stackWidged->addWidget(_menuWidget);
+    _stackWidged->addWidget(_gameWidget);
+    _stackWidged->setCurrentWidget(_menuWidget);
 
 }
 
@@ -35,9 +35,9 @@ void MainWindow::switchToGameMode()
     // Set the background color as light grey
     this->setStyleSheet("background:rgb(150, 150, 150)");
 
-    stackWidged->setCurrentWidget(gameWidget);
+    _stackWidged->setCurrentWidget(_gameWidget);
 
-    gameWidget->drawInitialMap();
+    _gameWidget->drawInitialMap();
 
     // Start game
     GameWidget::start();
@@ -51,7 +51,7 @@ void MainWindow::switchToMenuMode()
     // Set the background color as dark grey
     this->setStyleSheet("background:rgb(88, 88, 88)");
 
-    stackWidged->setCurrentWidget(menuWidget);
+    _stackWidged->setCurrentWidget(_menuWidget);
 
     // Stop game
     GameWidget::stop();
