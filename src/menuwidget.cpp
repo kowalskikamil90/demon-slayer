@@ -57,7 +57,7 @@ MenuWidget::MenuWidget(QWidget *parent) :
 
 void MenuWidget::paintEvent(QPaintEvent* event)
 {
-    (void*)event;
+    Q_UNUSED(event);
 
     //Paint the cross symbol
     QPainter painter(this);
