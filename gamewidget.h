@@ -9,10 +9,15 @@
 #include <QPushButton>
 #include <QPixmap>
 #include <QSet>
+#include <QVector>
 #include <QChar>
 #include <QTimer>
 
 extern unsigned int score;
+
+// Size of a map
+const int ROWS = 10;
+const int COLS = 11;
 
 class GameWidget : public QWidget
 {
@@ -42,8 +47,8 @@ private:
     QGridLayout *gameDisplayLayout;
 
     // These two fileds hold the map and units together
-    QPushButton *pixelsBtn[10][11];
-    QChar pixelsDesc[10][11];
+    QPushButton *pixelsBtn[ROWS][COLS];
+    QChar pixelsDesc[ROWS][COLS];
 
     QLabel *gameScripture;
     QPushButton *exitToMenu;
@@ -51,6 +56,9 @@ private:
     QLabel *arrows;
     QLabel *scoreLbl;
     QPixmap *arrowsPm;
+
+    //Vector for scriptures loaded from file
+    QVector<QString> scriptureVec;
 
     int numOfDemons;
     QSet<int> availSpawns;
@@ -60,6 +68,7 @@ private:
     static QTimer *timer;
 
     int getSpawn();
+    int pickScriptureIndex();
     void updateSpawns(int x, int y);
 };
 

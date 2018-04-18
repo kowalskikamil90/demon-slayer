@@ -35,4 +35,5 @@ HEADERS += \
     gamewidget.h
 
 RESOURCES += \
-    images.qrc
+    images.qrc \
+    scriptures.qrc

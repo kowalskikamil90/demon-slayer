@@ -4,20 +4,19 @@
 #include <QTime>
 #include <QRandomGenerator>
 #include <QKeyEvent>
-#include <QDebug>
+#include <QFile>
+#include <QTextStream>
 
 // Global variable used for storing the game SCORE
 unsigned int score;
 
+// Initial position of the Paul
 static int initPaulPosX = 5;
 static int initPaulPosY = 5;
 
-static int rows = 10;
-static int cols = 11;
-
 // T = TREE
 // P = PATH
-static QChar theInitialMap[10][11]= {
+static QChar theInitialMap[ROWS][COLS]= {
                              {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
                              {'T', 'P', 'T', 'P', 'P', 'P', 'P', 'P', 'T', 'P', 'T'},
                              {'T', 'P', 'T', 'T', 'P', 'T', 'T', 'P', 'P', 'P', 'P'},
@@ -50,8 +49,8 @@ GameWidget::GameWidget(QWidget *parent) :
     arrows(new QLabel),
     scoreLbl(new QLabel)
 {
-    /* Initialize random number generator
-     * This way we get diffrent numbers each time when the app is run */
+    /* Initialize random number generator.
+     * This way we get diffrent numbers each time when the app is run. */
     QTime time = QTime::currentTime();
     qsrand(static_cast<unsigned int>(time.msec()));
 
@@ -89,9 +88,9 @@ GameWidget::GameWidget(QWidget *parent) :
     gameTipsLayout->addWidget(exitToMenu);
 
     // Initialize map grid pixels
-    for (int i=0; i<rows; i++)
+    for (int i=0; i<ROWS; i++)
     {
-        for (int j=0; j<cols; j++)
+        for (int j=0; j<COLS; j++)
         {
             pixelsBtn[i][j] = new QPushButton();
             pixelsDesc[i][j] = theInitialMap[i][j];
@@ -114,6 +113,19 @@ GameWidget::GameWidget(QWidget *parent) :
     // Initially there is no demons on the map
     numOfDemons = 0;
 
+    // Read in scriptures from the file
+    QFile scriptures(":/scriptures/scriptures1.txt");
+    if (scriptures.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&scriptures);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          scriptureVec.push_back(line);
+       }
+       scriptures.close();
+    }
+
     /* Logics */
 
     // Setup timer callback for demons spawning, 5 seconds timeout interval
@@ -125,8 +137,6 @@ GameWidget::GameWidget(QWidget *parent) :
 
 void GameWidget::spawnDemon()
 {
-    qDebug() << "1.Num of demons: " << numOfDemons;
-    qDebug() << "1.Available spawns: " << availSpawns;
 
     if (numOfDemons < MAX_DEMONS && gameStarted)
     {
@@ -173,9 +183,6 @@ void GameWidget::spawnDemon()
         *desc = 'D';
     }
 
-    qDebug() << "2.Num of demons: " << numOfDemons;
-    qDebug() << "2.Available spawns: " << availSpawns;
-
 }
 
 int GameWidget::getSpawn()
@@ -185,11 +192,14 @@ int GameWidget::getSpawn()
 
     int spawn;
 
+    // Only one available position, nothing to shuffle
     if (availSpawns.size() == 1)
     {
         spawn = availSpawns.toList().at(0);
         availSpawns.remove(0);
     }
+
+    // Randomly choose the position for a demon
     else
     {
         int randomNum =  (qrand() % 10) + availSpawns.size();
@@ -199,9 +209,13 @@ int GameWidget::getSpawn()
         availSpawns.remove(spawn);
     }
 
-    qDebug() << "spawn returned: " << spawn;
-
     return spawn;
+}
+
+int GameWidget::pickScriptureIndex()
+{
+    // Get random scripture index
+    return  qrand() % scriptureVec.size();
 }
 
 void GameWidget::drawInitialMap()
@@ -212,9 +226,9 @@ void GameWidget::drawInitialMap()
     QIcon path(":/images/dryground.png");
     QIcon paul(":/images/paul.png");
 
-    for (int i=0; i<rows; i++)
+    for (int i=0; i<ROWS; i++)
     {
-        for (int j=0; j<cols; j++)
+        for (int j=0; j<COLS; j++)
         {
             QPushButton *pix = pixelsBtn[i][j];
             QChar *desc = &pixelsDesc[i][j];
@@ -280,11 +294,12 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     QIcon paul(":/images/paul.png");
     int x = paulsPos.x;
     int y = paulsPos.y;
+    bool encounteredDemon = false;
 
     switch (event->key())
     {
     case Qt::Key_Left:
-        if (y>0)
+        if (y > 0)
         {
             if (pixelsDesc[x][y-1] == 'P' || pixelsDesc[x][y-1] == 'D')
             {
@@ -295,6 +310,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
                     score++;
                     scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x, y-1);
+                    encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
@@ -315,7 +331,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Up:
-        if (x>0)
+        if (x > 0)
         {
             if (pixelsDesc[x-1][y] == 'P' || pixelsDesc[x-1][y] == 'D')
             {
@@ -326,6 +342,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
                     score++;
                     scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x-1, y);
+                    encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
@@ -347,7 +364,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Down:
-        if (x<9)
+        if (x < ROWS-1)
         {
             if (pixelsDesc[x+1][y] == 'P' || pixelsDesc[x+1][y] == 'D')
             {
@@ -358,6 +375,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
                     score++;
                     scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x+1, y);
+                    encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
@@ -379,7 +397,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Right:
-        if (y<10)
+        if (y < COLS-1)
         {
             if (pixelsDesc[x][y+1] == 'P' || pixelsDesc[x][y+1] == 'D')
             {
@@ -390,6 +408,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
                     score++;
                     scoreLbl->setText(QString("SCORE: ") + QString::number(score));
                     updateSpawns(x, y+1);
+                    encounteredDemon = true;
                 }
 
                 // Set ground icon where Paul was
@@ -410,6 +429,9 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
 
         break;
     }
+
+    // If demon was encountered, change te scripture taht is displayed
+    if (encounteredDemon) gameScripture->setText(scriptureVec[pickScriptureIndex()]);
 }
 
 void GameWidget::updateSpawns(int x, int y)
