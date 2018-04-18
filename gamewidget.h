@@ -10,8 +10,9 @@
 #include <QPixmap>
 #include <QSet>
 #include <QChar>
+#include <QTimer>
 
-extern int score;
+extern unsigned int score;
 
 class GameWidget : public QWidget
 {
@@ -53,10 +54,10 @@ private:
 
     int numOfDemons;
     QSet<int> availSpawns;
-    QSet<int> positionedDemons;
     GameWidget::Position paulsPos;
 
     static bool gameStarted;
+    static QTimer *timer;
 
     int getSpawn();
     void updateSpawns(int x, int y);

@@ -1,14 +1,13 @@
 #include "gamewidget.h"
 #include <QString>
 #include <QPalette>
-#include <QTimer>
 #include <QTime>
 #include <QRandomGenerator>
 #include <QKeyEvent>
 #include <QDebug>
 
 // Global variable used for storing the game SCORE
-int score;
+unsigned int score;
 
 static int initPaulPosX = 5;
 static int initPaulPosY = 5;
@@ -33,9 +32,12 @@ static QChar theInitialMap[10][11]= {
 
 // Maximum number of existing demons
 #define MAX_DEMONS 5
+// Timeout for spawning demons
+#define SPAWN_TIMEOUT 3000 //unit is ms
 
 // Static member inititialization
 bool GameWidget::gameStarted(false);
+QTimer* GameWidget::timer(new QTimer);
 
 GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
@@ -48,7 +50,8 @@ GameWidget::GameWidget(QWidget *parent) :
     arrows(new QLabel),
     scoreLbl(new QLabel)
 {
-    // Initialize random number generator
+    /* Initialize random number generator
+     * This way we get diffrent numbers each time when the app is run */
     QTime time = QTime::currentTime();
     qsrand(static_cast<unsigned int>(time.msec()));
 
@@ -108,14 +111,13 @@ GameWidget::GameWidget(QWidget *parent) :
 
     setLayout(gameMainLayout);
 
-    // Setup timer for demons spawning, 5 seconds timeout interval
+    // Initially there is no demons on the map
     numOfDemons = 0;
 
-    QTimer *timer = new QTimer();
-    connect(timer, SIGNAL(timeout()), this, SLOT(spawnDemon()));
-    timer->start(4000);
-
     /* Logics */
+
+    // Setup timer callback for demons spawning, 5 seconds timeout interval
+    connect(timer, SIGNAL(timeout()), this, SLOT(spawnDemon()));
 
     // Exit to menu when the "EXIT to menu" button is clicked
     connect(exitToMenu, SIGNAL(clicked()), this->parent(), SLOT(switchToMenuMode()));
@@ -123,6 +125,9 @@ GameWidget::GameWidget(QWidget *parent) :
 
 void GameWidget::spawnDemon()
 {
+    qDebug() << "1.Num of demons: " << numOfDemons;
+    qDebug() << "1.Available spawns: " << availSpawns;
+
     if (numOfDemons < MAX_DEMONS && gameStarted)
     {
         QIcon demon(":/images/demon.png");
@@ -167,6 +172,10 @@ void GameWidget::spawnDemon()
         numOfDemons++;
         *desc = 'D';
     }
+
+    qDebug() << "2.Num of demons: " << numOfDemons;
+    qDebug() << "2.Available spawns: " << availSpawns;
+
 }
 
 int GameWidget::getSpawn()
@@ -180,7 +189,6 @@ int GameWidget::getSpawn()
     {
         spawn = availSpawns.toList().at(0);
         availSpawns.remove(0);
-        positionedDemons.insert(0);
     }
     else
     {
@@ -188,9 +196,10 @@ int GameWidget::getSpawn()
         int numCycles = randomNum / availSpawns.size();
         randomNum = randomNum - numCycles*availSpawns.size();
         spawn = availSpawns.toList().at(randomNum);
-        availSpawns.remove(randomNum);
-        positionedDemons.insert(randomNum);
+        availSpawns.remove(spawn);
     }
+
+    qDebug() << "spawn returned: " << spawn;
 
     return spawn;
 }
@@ -251,19 +260,18 @@ void GameWidget::drawInitialMap()
     availSpawns.insert(2);
     availSpawns.insert(3);
     availSpawns.insert(4);
-
-    // No demons at the beginning
-    positionedDemons.clear();
 }
 
 void GameWidget::start()
 {
     gameStarted = true;
+    timer->start(SPAWN_TIMEOUT);
 }
 
 void GameWidget::stop()
 {
     gameStarted = false;
+    timer->stop();
 }
 
 void GameWidget::keyPressEvent(QKeyEvent* event)
@@ -406,9 +414,9 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
 
 void GameWidget::updateSpawns(int x, int y)
 {
-    if (x == 1 && y ==1) availSpawns.remove(0);
-    else if(x == 7 && y == 1) availSpawns.remove(1);
-    else if(x == 1 && y == 7) availSpawns.remove(2);
-    else if(x == 7 && y == 5) availSpawns.remove(3);
-    else if(x == 8 && y == 8) availSpawns.remove(4);
+    if (x == 1 && y ==1) availSpawns.insert(0);
+    else if(x == 7 && y == 1) availSpawns.insert(1);
+    else if(x == 1 && y == 7) availSpawns.insert(2);
+    else if(x == 7 && y == 5) availSpawns.insert(3);
+    else if(x == 8 && y == 8) availSpawns.insert(4);
 }
