@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QPixmap>
 #include <QSet>
+#include <QChar>
 
 extern int score;
 
@@ -35,7 +36,7 @@ private:
         int x, y;
     };
 
-    QString map[10][11];
+    QChar theMap[10][11];
     QVBoxLayout *gameMainLayout;
     QHBoxLayout *gameTipsLayout;
     QGridLayout *gameDisplayLayout;

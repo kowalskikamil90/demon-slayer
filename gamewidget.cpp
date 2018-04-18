@@ -10,6 +10,13 @@
 // Global variable used for storing the game SCORE
 int score;
 
+static int initPaulPosX = 5;
+static int initPaulPosY = 5;
+
+static int rows = 10;
+static int cols = 11;
+
+
 // Maximum number of existing demons
 #define MAX_DEMONS 5
 
@@ -20,17 +27,17 @@ GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
     // T = TREE
     // P = PATH
-    map({
-        {"T", "P", "P", "P", "T", "T", "T", "P", "P", "P", "T"},
-        {"T", "P", "T", "P", "P", "P", "P", "P", "T", "P", "T"},
-        {"T", "P", "T", "T", "P", "T", "T", "P", "P", "P", "P"},
-        {"P", "P", "P", "P", "P", "P", "T", "T", "T", "T", "P"},
-        {"P", "T", "T", "P", "T", "P", "P", "P", "T", "P", "P"},
-        {"P", "P", "T", "T", "T", "P", "T", "P", "T", "P", "T"},
-        {"P", "P", "P", "P", "T", "P", "T", "P", "T", "P", "P"},
-        {"T", "P", "T", "P", "P", "P", "T", "P", "P", "P", "P"},
-        {"T", "P", "T", "P", "T", "P", "P", "P", "P", "T", "T"},
-        {"T", "P", "P", "P", "T", "T", "T", "P", "P", "P", "T"},
+    theMap({
+        {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
+        {'T', 'P', 'T', 'P', 'P', 'P', 'P', 'P', 'T', 'P', 'T'},
+        {'T', 'P', 'T', 'T', 'P', 'T', 'T', 'P', 'P', 'P', 'P'},
+        {'P', 'P', 'P', 'P', 'P', 'P', 'T', 'T', 'T', 'T', 'P'},
+        {'P', 'T', 'T', 'P', 'T', 'P', 'P', 'P', 'T', 'P', 'P'},
+        {'P', 'P', 'T', 'T', 'T', 'P', 'T', 'P', 'T', 'P', 'T'},
+        {'P', 'P', 'P', 'P', 'T', 'P', 'T', 'P', 'T', 'P', 'P'},
+        {'T', 'P', 'T', 'P', 'P', 'P', 'T', 'P', 'P', 'P', 'P'},
+        {'T', 'P', 'T', 'P', 'T', 'P', 'P', 'P', 'P', 'T', 'T'},
+        {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
     }),
     gameMainLayout(new QVBoxLayout),
     gameTipsLayout(new QHBoxLayout),
@@ -79,14 +86,11 @@ GameWidget::GameWidget(QWidget *parent) :
     gameTipsLayout->addWidget(exitToMenu);
 
     // Initialize map grid pixels
-    int rows = 10;
-    int cols = 11;
     for (int i=0; i<rows; i++)
     {
         for (int j=0; j<cols; j++)
         {
-            QPushButton *pix = new QPushButton();
-            pixels[i][j] = pix;
+            pixels[i][j] = new QPushButton();
         }
     }
     drawInitialMap();
@@ -178,8 +182,6 @@ int GameWidget::getSpawn()
 void GameWidget::drawInitialMap()
 {
     // Setup grid layout - the map
-    int rows = 10;
-    int cols = 11;
 
     QIcon tree(":/images/tree1.png");
     QIcon path(":/images/dryground.png");
@@ -192,20 +194,20 @@ void GameWidget::drawInitialMap()
             QPushButton *pix = pixels[i][j];
             pix->setFocusPolicy(Qt::NoFocus);
             pix->setFixedSize(60, 60);
-            // Setup Paul
-            if (i == 5 && j == 5)
+            // Setup Paul initial position
+            if (i == initPaulPosX && j == initPaulPosY)
             {
                 pix->setIcon(paul);
                 paulsPos.x = i;
                 paulsPos.y = j;
             }
             // Trees
-            else if (map[i][j] == "T")
+            else if (theMap[i][j] == 'T')
             {
                 pix->setIcon(tree);
             }
             // Paths
-            else if (map[i][j] == "P")
+            else if (theMap[i][j] == 'P')
             {
                 pix->setIcon(path);
             }
@@ -248,19 +250,19 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     int x = paulsPos.x;
     int y = paulsPos.y;
 
-    qDebug() << x << "," << y;
+    qDebug() << "CURRENT POS: x=" << x << ", y="<< y;
+    qDebug() << "LEFT POS:" << theMap[x, y-1];
+    qDebug() << "RIGHT POS:" << theMap[x, y+1];
+    qDebug() << "UP POS:" << theMap[x-1, y];
+    qDebug() << "DOWN POS:" << theMap[x+1, y];
 
     switch (event->key())
     {
     case Qt::Key_Left:
         if (y>0)
         {
-            qDebug() << "LEFT: " << *map[x, y-1];
-            if (map[x, y-1] == QString("P"))
+            if (theMap[x][y-1] == 'P')
             {
-
-                qDebug() << "LEFT: " << *map[x, y-1];
-
                 // Set ground icon where Paul was
                 pixels[x][y]->setIcon(path);
                 pixels[x][y]->setIconSize(QSize(60, 60));
@@ -278,7 +280,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Up:
         if (x>0)
         {
-            if (map[x-1, y] == QString("P"))
+            if (theMap[x-1][y] == 'P')
             {
                 // Set ground icon where Paul was
                 pixels[x][y]->setIcon(path);
@@ -298,7 +300,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Down:
         if (x<9)
         {
-            if (map[x+1, y] == QString("P"))
+            if (theMap[x+1][y] == 'P')
             {
                 // Set ground icon where Paul was
                 pixels[x][y]->setIcon(path);
@@ -318,7 +320,7 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Right:
         if (y<10)
         {
-            if (map[x, y+1] == QString("P"))
+            if (theMap[x][y+1] == 'P')
             {
                 // Set ground icon where Paul was
                 pixels[x][y]->setIcon(path);
