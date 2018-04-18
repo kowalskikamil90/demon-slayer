@@ -36,17 +36,21 @@ private:
         int x, y;
     };
 
-    QChar theMap[10][11];
     QVBoxLayout *gameMainLayout;
     QHBoxLayout *gameTipsLayout;
     QGridLayout *gameDisplayLayout;
-    QPushButton *pixels[10][11];
+
+    // These two fileds hold the map and units together
+    QPushButton *pixelsBtn[10][11];
+    QChar pixelsDesc[10][11];
+
     QLabel *gameScripture;
     QPushButton *exitToMenu;
     QLabel *tips;
     QLabel *arrows;
     QLabel *scoreLbl;
     QPixmap *arrowsPm;
+
     int numOfDemons;
     QSet<int> availSpawns;
     QSet<int> positionedDemons;
@@ -55,6 +59,7 @@ private:
     static bool gameStarted;
 
     int getSpawn();
+    void updateSpawns(int x, int y);
 };
 
 #endif // GAMEWIDGET_H

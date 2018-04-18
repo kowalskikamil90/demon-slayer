@@ -16,6 +16,20 @@ static int initPaulPosY = 5;
 static int rows = 10;
 static int cols = 11;
 
+// T = TREE
+// P = PATH
+static QChar theInitialMap[10][11]= {
+                             {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
+                             {'T', 'P', 'T', 'P', 'P', 'P', 'P', 'P', 'T', 'P', 'T'},
+                             {'T', 'P', 'T', 'T', 'P', 'T', 'T', 'P', 'P', 'P', 'P'},
+                             {'P', 'P', 'P', 'P', 'P', 'P', 'T', 'T', 'T', 'T', 'P'},
+                             {'P', 'T', 'T', 'P', 'T', 'P', 'P', 'P', 'T', 'P', 'P'},
+                             {'P', 'P', 'T', 'T', 'T', 'P', 'T', 'P', 'T', 'P', 'T'},
+                             {'P', 'P', 'P', 'P', 'T', 'P', 'T', 'P', 'T', 'P', 'P'},
+                             {'T', 'P', 'T', 'P', 'P', 'P', 'T', 'P', 'P', 'P', 'P'},
+                             {'T', 'P', 'T', 'P', 'T', 'P', 'P', 'P', 'P', 'T', 'T'},
+                             {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
+                             };
 
 // Maximum number of existing demons
 #define MAX_DEMONS 5
@@ -25,20 +39,6 @@ bool GameWidget::gameStarted(false);
 
 GameWidget::GameWidget(QWidget *parent) :
     QWidget(parent),
-    // T = TREE
-    // P = PATH
-    theMap({
-        {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
-        {'T', 'P', 'T', 'P', 'P', 'P', 'P', 'P', 'T', 'P', 'T'},
-        {'T', 'P', 'T', 'T', 'P', 'T', 'T', 'P', 'P', 'P', 'P'},
-        {'P', 'P', 'P', 'P', 'P', 'P', 'T', 'T', 'T', 'T', 'P'},
-        {'P', 'T', 'T', 'P', 'T', 'P', 'P', 'P', 'T', 'P', 'P'},
-        {'P', 'P', 'T', 'T', 'T', 'P', 'T', 'P', 'T', 'P', 'T'},
-        {'P', 'P', 'P', 'P', 'T', 'P', 'T', 'P', 'T', 'P', 'P'},
-        {'T', 'P', 'T', 'P', 'P', 'P', 'T', 'P', 'P', 'P', 'P'},
-        {'T', 'P', 'T', 'P', 'T', 'P', 'P', 'P', 'P', 'T', 'T'},
-        {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
-    }),
     gameMainLayout(new QVBoxLayout),
     gameTipsLayout(new QHBoxLayout),
     gameDisplayLayout(new QGridLayout),
@@ -90,7 +90,8 @@ GameWidget::GameWidget(QWidget *parent) :
     {
         for (int j=0; j<cols; j++)
         {
-            pixels[i][j] = new QPushButton();
+            pixelsBtn[i][j] = new QPushButton();
+            pixelsDesc[i][j] = theInitialMap[i][j];
         }
     }
     drawInitialMap();
@@ -126,38 +127,53 @@ void GameWidget::spawnDemon()
     {
         QIcon demon(":/images/demon.png");
         QPushButton *pix;
+        QChar *desc;
 
         switch (getSpawn()){
 
         case 0:
-            pix = pixels[1][1];
+            pix = pixelsBtn[1][1];
+            desc = &pixelsDesc[1][1];
+
             break;
 
         case 1:
-            pix = pixels[7][1];
+            pix = pixelsBtn[7][1];
+            desc = &pixelsDesc[7][1];
+
             break;
 
         case 2:
-            pix = pixels[1][7];
+            pix = pixelsBtn[1][7];
+            desc = &pixelsDesc[1][7];
+
             break;
 
         case 3:
-            pix = pixels[7][5];
+            pix = pixelsBtn[7][5];
+            desc = &pixelsDesc[7][5];
+
             break;
 
         case 4:
-            pix = pixels[8][8];
+            pix = pixelsBtn[8][8];
+            desc = &pixelsDesc[8][8];
+
             break;
         }
 
         pix->setIcon(demon);
         pix->setIconSize(QSize(60, 60));
         numOfDemons++;
+        *desc = 'D';
     }
 }
 
 int GameWidget::getSpawn()
 {
+    /* Get random position of a spawn.
+     * At the beginning there is 5 available positions.*/
+
     int spawn;
 
     if (availSpawns.size() == 1)
@@ -191,25 +207,32 @@ void GameWidget::drawInitialMap()
     {
         for (int j=0; j<cols; j++)
         {
-            QPushButton *pix = pixels[i][j];
+            QPushButton *pix = pixelsBtn[i][j];
+            QChar *desc = &pixelsDesc[i][j];
             pix->setFocusPolicy(Qt::NoFocus);
             pix->setFixedSize(60, 60);
-            // Setup Paul initial position
+
+            // Setup (A)postle Paul initial position and Icon
             if (i == initPaulPosX && j == initPaulPosY)
             {
                 pix->setIcon(paul);
                 paulsPos.x = i;
                 paulsPos.y = j;
+                *desc = 'P'; //No need to distinguish Path From Apostle here
             }
-            // Trees
-            else if (theMap[i][j] == 'T')
+
+            // Setup (T)rees Icons
+            else if (theInitialMap[i][j] == 'T')
             {
                 pix->setIcon(tree);
+                *desc = 'T';
             }
-            // Paths
-            else if (theMap[i][j] == 'P')
+
+            // Setup (P)aths Icons
+            else if (theInitialMap[i][j] == 'P')
             {
                 pix->setIcon(path);
+                *desc = 'P';
             }
 
             pix->setIconSize(QSize(60, 60));
@@ -250,29 +273,35 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     int x = paulsPos.x;
     int y = paulsPos.y;
 
-    qDebug() << "CURRENT POS: x=" << x << ", y="<< y;
-    qDebug() << "LEFT POS:" << theMap[x, y-1];
-    qDebug() << "RIGHT POS:" << theMap[x, y+1];
-    qDebug() << "UP POS:" << theMap[x-1, y];
-    qDebug() << "DOWN POS:" << theMap[x+1, y];
-
     switch (event->key())
     {
     case Qt::Key_Left:
         if (y>0)
         {
-            if (theMap[x][y-1] == 'P')
+            if (pixelsDesc[x][y-1] == 'P' || pixelsDesc[x][y-1] == 'D')
             {
+                // Encounter with a demon
+                if (pixelsDesc[x][y-1] == 'D')
+                {
+                    numOfDemons--;
+                    score++;
+                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    updateSpawns(x, y-1);
+                }
+
                 // Set ground icon where Paul was
-                pixels[x][y]->setIcon(path);
-                pixels[x][y]->setIconSize(QSize(60, 60));
+                pixelsBtn[x][y]->setIcon(path);
+                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixels[x][y-1]->setIcon(paul);
-                pixels[x][y-1]->setIconSize(QSize(60, 60));
+                pixelsBtn[x][y-1]->setIcon(paul);
+                pixelsBtn[x][y-1]->setIconSize(QSize(60, 60));
 
                 // Set new Paul's position
                 paulsPos.y = y-1;
+
+                // Set pixel to (P)ath
+                pixelsDesc[x][y-1] = 'P';
             }
         }
         break;
@@ -280,18 +309,30 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Up:
         if (x>0)
         {
-            if (theMap[x-1][y] == 'P')
+            if (pixelsDesc[x-1][y] == 'P' || pixelsDesc[x-1][y] == 'D')
             {
+                // Encounter with a demon
+                if (pixelsDesc[x-1][y] == 'D')
+                {
+                    numOfDemons--;
+                    score++;
+                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    updateSpawns(x-1, y);
+                }
+
                 // Set ground icon where Paul was
-                pixels[x][y]->setIcon(path);
-                pixels[x][y]->setIconSize(QSize(60, 60));
+                pixelsBtn[x][y]->setIcon(path);
+                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixels[x-1][y]->setIcon(paul);
-                pixels[x-1][y]->setIconSize(QSize(60, 60));
+                pixelsBtn[x-1][y]->setIcon(paul);
+                pixelsBtn[x-1][y]->setIconSize(QSize(60, 60));
 
                 // Set new Paul's position
                 paulsPos.x = x-1;
+
+                // Set pixel to (P)ath
+                pixelsDesc[x-1][y] = 'P';
             }
         }
 
@@ -300,18 +341,30 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Down:
         if (x<9)
         {
-            if (theMap[x+1][y] == 'P')
+            if (pixelsDesc[x+1][y] == 'P' || pixelsDesc[x+1][y] == 'D')
             {
+                // Encounter with a demon
+                if (pixelsDesc[x+1][y] == 'D')
+                {
+                    numOfDemons--;
+                    score++;
+                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    updateSpawns(x+1, y);
+                }
+
                 // Set ground icon where Paul was
-                pixels[x][y]->setIcon(path);
-                pixels[x][y]->setIconSize(QSize(60, 60));
+                pixelsBtn[x][y]->setIcon(path);
+                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixels[x+1][y]->setIcon(paul);
-                pixels[x+1][y]->setIconSize(QSize(60, 60));
+                pixelsBtn[x+1][y]->setIcon(paul);
+                pixelsBtn[x+1][y]->setIconSize(QSize(60, 60));
 
                 // Set nes Paul's position
                 paulsPos.x = x+1;
+
+                // Set pixel to (P)ath
+                pixelsDesc[x+1][y] = 'P';
             }
         }
 
@@ -320,21 +373,42 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Right:
         if (y<10)
         {
-            if (theMap[x][y+1] == 'P')
+            if (pixelsDesc[x][y+1] == 'P' || pixelsDesc[x][y+1] == 'D')
             {
+                // Encounter with a demon
+                if (pixelsDesc[x][y+1] == 'D')
+                {
+                    numOfDemons--;
+                    score++;
+                    scoreLbl->setText(QString("SCORE: ") + QString::number(score));
+                    updateSpawns(x, y+1);
+                }
+
                 // Set ground icon where Paul was
-                pixels[x][y]->setIcon(path);
-                pixels[x][y]->setIconSize(QSize(60, 60));
+                pixelsBtn[x][y]->setIcon(path);
+                pixelsBtn[x][y]->setIconSize(QSize(60, 60));
 
                 // Set Paul icon to the left
-                pixels[x][y+1]->setIcon(paul);
-                pixels[x][y+1]->setIconSize(QSize(60, 60));
+                pixelsBtn[x][y+1]->setIcon(paul);
+                pixelsBtn[x][y+1]->setIconSize(QSize(60, 60));
 
                 // Set new Paul's position
                 paulsPos.y = y+1;
+
+                // Set pixel to (P)ath
+                pixelsDesc[x][y+1] = 'P';
             }
         }
 
         break;
     }
+}
+
+void GameWidget::updateSpawns(int x, int y)
+{
+    if (x == 1 && y ==1) availSpawns.remove(0);
+    else if(x == 7 && y == 1) availSpawns.remove(1);
+    else if(x == 1 && y == 7) availSpawns.remove(2);
+    else if(x == 7 && y == 5) availSpawns.remove(3);
+    else if(x == 8 && y == 8) availSpawns.remove(4);
 }
