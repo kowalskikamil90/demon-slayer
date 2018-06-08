@@ -436,6 +436,8 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
 
 void GameWidget::updateSpawns(int x, int y)
 {
+    /* TODO: Move these magic numbers into some proper place
+     * and implement it using Position class with overloaded operator== /*
     if (x == 1 && y ==1) _availSpawns.insert(0);
     else if(x == 7 && y == 1) _availSpawns.insert(1);
     else if(x == 1 && y == 7) _availSpawns.insert(2);
