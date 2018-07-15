@@ -29,6 +29,21 @@ static QChar theInitialMap[ROWS][COLS]= {
                              {'T', 'P', 'P', 'P', 'T', 'T', 'T', 'P', 'P', 'P', 'T'},
                              };
 
+struct Coords
+{
+  int x;
+  int y;
+  
+  bool operator==(const Coords& c) const
+  {
+    if (this->x == c.x && this->y == c.y) return true;
+    else return false;
+  }
+};
+
+// These are potencial available spawn positions
+Coords spawns[5] = { {1,1}, {7,1}, {1,7}, {7,5}, {8,8} };
+
 // Maximum number of existing demons
 #define MAX_DEMONS 5
 // Timeout for spawning demons
@@ -143,39 +158,11 @@ void GameWidget::spawnDemon()
         QIcon demon(":/images/demon.png");
         QPushButton *pix;
         QChar *desc;
+        Coords spawn;
 
-        switch (getSpawn()){
-
-        case 0:
-            pix = _pixelsBtn[1][1];
-            desc = &_pixelsDesc[1][1];
-
-            break;
-
-        case 1:
-            pix = _pixelsBtn[7][1];
-            desc = &_pixelsDesc[7][1];
-
-            break;
-
-        case 2:
-            pix = _pixelsBtn[1][7];
-            desc = &_pixelsDesc[1][7];
-
-            break;
-
-        case 3:
-            pix = _pixelsBtn[7][5];
-            desc = &_pixelsDesc[7][5];
-
-            break;
-
-        case 4:
-            pix = _pixelsBtn[8][8];
-            desc = &_pixelsDesc[8][8];
-
-            break;
-        }
+        spawn = spawns[getSpawn()];
+        pix = _pixelsBtn[spawn.x][spawn.y];
+        desc = &_pixelsDesc[spawn.x][spawn.y];
 
         pix->setIcon(demon);
         pix->setIconSize(QSize(60, 60));
@@ -209,6 +196,8 @@ int GameWidget::getSpawn()
         _availSpawns.remove(spawn);
     }
 
+    /* Returns number from 0 to 4, the index of a spawn position
+     * depending on available spawn positions.*/
     return spawn;
 }
 
@@ -436,11 +425,14 @@ void GameWidget::keyPressEvent(QKeyEvent* event)
 
 void GameWidget::updateSpawns(int x, int y)
 {
-    /* TODO: Move these magic numbers into some proper place
-     * and implement it using Position class with overloaded operator== */
-    if (x == 1 && y ==1) _availSpawns.insert(0);
-    else if(x == 7 && y == 1) _availSpawns.insert(1);
-    else if(x == 1 && y == 7) _availSpawns.insert(2);
-    else if(x == 7 && y == 5) _availSpawns.insert(3);
-    else if(x == 8 && y == 8) _availSpawns.insert(4);
+    Coords spawn(x, y);
+  
+    for (int i = 0; i  sizeof(spawns)/sizeof(Coords); i++)
+    {
+       if (spawn == spawns[i]) 
+       {
+          _availSpawns.insert(i);
+          break;
+       }
+    }
 }
